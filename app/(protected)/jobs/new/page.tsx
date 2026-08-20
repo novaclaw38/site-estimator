@@ -32,6 +32,11 @@ export default function NewJobPage() {
         mediaKeys.push(objectKey);
       }
       const job = await createJob.mutateAsync({ mediaKeys });
+      await fetch("/api/jobs/process", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: job.id }),
+      });
       router.push(`/jobs/${job.id}`);
     } finally {
       setSubmitting(false);
