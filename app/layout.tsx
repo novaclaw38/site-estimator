@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { bodyFont, displayFont, monoFont } from "./fonts";
 import "./globals.css";
@@ -13,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
-    >
-      <body>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable}`}
+      >
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }
