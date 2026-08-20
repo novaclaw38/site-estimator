@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.723.0",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@playwright/test": "1.49.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.10.5",
     "@types/react": "19.0.7",
