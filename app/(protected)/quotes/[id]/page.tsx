@@ -17,6 +17,7 @@ export default function QuotePage({
   const updateLineItem = trpc.quotes.updateLineItem.useMutation({
     onSuccess: () => utils.quotes.byId.invalidate({ id }),
   });
+  const share = trpc.quotes.share.useMutation();
 
   if (!data) return <p>Loading...</p>;
 
@@ -40,9 +41,29 @@ export default function QuotePage({
         Grand total: R{Number(data.quote.grandTotal).toFixed(2)}
       </div>
 
-      <Button type="button" className="mt-[var(--space-3)]" variant="secondary">
+      <Button
+        type="button"
+        className="mt-[var(--space-3)]"
+        variant="secondary"
+        onClick={() => share.mutate({ id })}
+      >
         Share with client
       </Button>
+
+      {share.data && (
+        <p className="mt-[var(--space-2)] text-sm">
+          Client link:{" "}
+          <a
+            className="underline"
+            href={`/quote/${share.data.shareToken}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {typeof window !== "undefined" ? window.location.origin : ""}/quote/
+            {share.data.shareToken}
+          </a>
+        </p>
+      )}
     </Card>
   );
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { jobs, lineItems, quotes } from "@/lib/db/schema";
 import { calculateQuoteTotals } from "@/lib/quotes/calculate-totals";
-import { protectedProcedure, router } from "../init";
+import { protectedProcedure, publicProcedure, router } from "../init";
 
 async function assertOwnsQuote(userId: string, quoteId: string) {
   const rows = await db
@@ -115,5 +115,40 @@ export const quotesRouter = router({
         .where(eq(quotes.id, input.id));
       await recalculateAndSave(input.id);
       return { success: true };
+    }),
+
+  share: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ input }) => {
+      const rows = await db
+        .select()
+        .from(quotes)
+        .where(eq(quotes.id, input.id));
+      const quote = rows[0];
+      if (!quote) throw new Error("Quote not found");
+
+      const shareToken =
+        quote.shareToken ?? crypto.randomUUID().replace(/-/g, "");
+      await db
+        .update(quotes)
+        .set({ shareToken, updatedAt: new Date() })
+        .where(eq(quotes.id, input.id));
+      return { shareToken };
+    }),
+
+  byShareToken: publicProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const rows = await db
+        .select()
+        .from(quotes)
+        .where(eq(quotes.shareToken, input.token));
+      const quote = rows[0];
+      if (!quote) throw new Error("Quote not found");
+      const items = await db
+        .select()
+        .from(lineItems)
+        .where(eq(lineItems.quoteId, quote.id));
+      return { quote, lineItems: items };
     }),
 });
